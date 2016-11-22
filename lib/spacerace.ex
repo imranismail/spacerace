@@ -1,9 +1,9 @@
-defmodule Sombra do
+defmodule Spacerace do
   defmacro __using__(opts) do
     quote bind_quoted: binding() do
       use Ecto.Schema
 
-      import Sombra, only: [get: 2]
+      import Spacerace, only: [get: 2]
 
       @resources opts[:resources]
       @resource opts[:resource]
@@ -17,20 +17,17 @@ defmodule Sombra do
 
   defmacro get(fun, endpoint) do
     quote do
-      def unquote(fun)(unquote(Sombra.create_args(endpoint)) = args) do
-        Sombra.prepare_uri(args, unquote(endpoint))
+      def unquote(fun)(unquote(Spacerace.create_args(endpoint)) = args) do
+        Spacerace.prepare_uri(args, unquote(endpoint))
       end
     end
   end
 
   def create_args(endpoint) do
-    param_keys =
-      ~r/:(\w+)/
-      |> Regex.scan(endpoint, capture: :all_but_first)
-      |> List.flatten()
-      |> Enum.map(&String.to_atom/1)
-
-    Enum.map(param_keys, fn key ->
+    ~r/:(\w+)/
+    |> Regex.scan(endpoint, capture: :all_but_first)
+    |> Enum.flat_map(&String.to_atom/1)
+    |> Enum.map(param_keys, fn key ->
       quote do
         {unquote(key), unquote(Macro.var(key, __MODULE__))}
       end

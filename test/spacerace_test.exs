@@ -1,6 +1,6 @@
-defmodule SombraTest do
+defmodule SpaceraceTest do
   use ExUnit.Case
-  doctest Sombra
+  doctest Spacerace
 
   test "the truth" do
     assert 1 + 1 == 2

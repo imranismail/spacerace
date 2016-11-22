@@ -1,4 +1,4 @@
-# Sombra
+# Spacerace
 
 **TODO: Add description**
 
@@ -6,19 +6,18 @@
 
 If [available in Hex](https://hex.pm/docs/publish), the package can be installed as:
 
-  1. Add `sombra` to your list of dependencies in `mix.exs`:
+  1. Add `spacerace` to your list of dependencies in `mix.exs`:
 
     ```elixir
     def deps do
-      [{:sombra, "~> 0.1.0"}]
+      [{:spacerace, "~> 0.1.0"}]
     end
     ```
 
-  2. Ensure `sombra` is started before your application:
+  2. Ensure `spacerace` is started before your application:
 
     ```elixir
     def application do
-      [applications: [:sombra]]
+      [applications: [:spacerace]]
     end
     ```
-
