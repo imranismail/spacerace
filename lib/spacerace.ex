@@ -26,8 +26,9 @@ defmodule Spacerace do
   def create_args(endpoint) do
     ~r/:(\w+)/
     |> Regex.scan(endpoint, capture: :all_but_first)
-    |> Enum.flat_map(&String.to_atom/1)
-    |> Enum.map(param_keys, fn key ->
+    |> Enum.concat()
+    |> Enum.map(&String.to_atom/1)
+    |> Enum.map(fn key ->
       quote do
         {unquote(key), unquote(Macro.var(key, __MODULE__))}
       end
