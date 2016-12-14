@@ -16,7 +16,7 @@ defmodule Spacerace do
     end
   end
   
-  defmacro __before_compile__(_env) do
+  defmacro __before_compile__(_) do
     quote do
       @embedded_fields Keyword.keys(@ecto_embeds)
 
