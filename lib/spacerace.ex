@@ -1,4 +1,4 @@
-defmodule Spacerace do
+defmodule Spacerace do  
   defmacro __using__(opts) do
     quote bind_quoted: binding() do
       use Ecto.Schema
@@ -8,10 +8,36 @@ defmodule Spacerace do
       @resources opts[:resources]
       @resource opts[:resource]
       @look_in opts[:look_in]
+      @before_compile Spacerace
 
       def __schema__(:resources), do: @resources
       def __schema__(:resource), do: @resource
       def __schema__(:look_in), do: @look_in
+    end
+  end
+  
+  defmacro __before_compile__(_env) do
+    quote do
+      @embedded_fields Keyword.keys(@ecto_embeds)
+
+      @fields @ecto_fields
+        |> Keyword.drop(@embedded_fields)
+        |> Keyword.keys()
+
+      def new(response) do
+        %__MODULE__{}
+        |> changeset(response)
+        |> apply_changes()
+      end
+
+      def changeset(struct, params) do
+        changeset = cast(struct, params, @fields)
+        Enum.reduce(@embedded_fields, changeset, fn field, changeset ->
+          cast_embed(changeset, field)
+        end)
+      end
+      
+      defoverridable [new: 1, changeset: 2]
     end
   end
 
