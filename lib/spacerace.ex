@@ -1,9 +1,10 @@
-defmodule Spacerace do  
+defmodule Spacerace do
   defmacro __using__(opts) do
     quote bind_quoted: binding() do
       use Ecto.Schema
 
-      import Spacerace, only: [get: 2]
+      import Ecto.Changeset
+      import Spacerace, only: [get: 2, post: 2]
 
       @resources opts[:resources]
       @resource opts[:resource]
@@ -15,7 +16,7 @@ defmodule Spacerace do
       def __schema__(:look_in), do: @look_in
     end
   end
-  
+
   defmacro __before_compile__(_) do
     quote do
       @embedded_fields Keyword.keys(@ecto_embeds)
@@ -36,15 +37,26 @@ defmodule Spacerace do
           cast_embed(changeset, field)
         end)
       end
-      
+
       defoverridable [new: 1, changeset: 2]
     end
   end
 
   defmacro get(fun, endpoint) do
     quote do
-      def unquote(fun)(unquote(Spacerace.create_args(endpoint)) = args) do
-        Spacerace.prepare_uri(args, unquote(endpoint))
+      def unquote(fun)(client, unquote(Spacerace.create_args(endpoint)) = params \\ [], query_params \\ %{}) do
+        Spacerace.Request.get(client, Spacerace.prepare_uri(params, unquote(endpoint)), query_params)
+      end
+    end
+  end
+
+  defmacro post(fun, endpoint) do
+    quote do
+      def unquote(fun)(client, unquote(Spacerace.create_args(endpoint)) = params \\ [], body \\ %{}) do
+        client
+        |> Spacerace.Request.post(Spacerace.prepare_uri(params, unquote(endpoint)), body)
+        |> Map.get("results")
+        |> Enum.map(&new/1)
       end
     end
   end
