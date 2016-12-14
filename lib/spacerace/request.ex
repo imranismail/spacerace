@@ -9,23 +9,13 @@ defmodule Spacerace.Request do
         |> URI.merge("?#{URI.encode_query(query_params)}")
       end
 
-    endpoint
-    |> HTTPoison.get(client.headers, client.options)
-    |> handle_response()
+    HTTPoison.get(endpoint, client.headers, client.options)
   end
 
   def post(client, endpoint, body \\ %{}) do
     endpoint = URI.merge(client.base_url, endpoint)
     body     = Poison.encode!(body)
 
-    endpoint
-    |> HTTPoison.post(body, client.headers, client.options)
-    |> handle_response()
-  end
-
-  defp handle_response({:ok, response}) do
-    response
-    |> Map.get(:body)
-    |> Poison.decode!()
+    HTTPoison.post(endpoint, body, client.headers, client.options)
   end
 end

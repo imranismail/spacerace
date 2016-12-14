@@ -4,7 +4,7 @@ defmodule Spacerace do
       use Ecto.Schema
 
       import Ecto.Changeset
-      import Spacerace, only: [get: 2, post: 2]
+      import Spacerace, only: [get: 3, post: 3]
 
       @resources opts[:resources]
       @resource opts[:resource]
@@ -42,21 +42,24 @@ defmodule Spacerace do
     end
   end
 
-  defmacro get(fun, endpoint) do
+  defmacro get(fun, endpoint, opts \\ []) do
     quote do
-      def unquote(fun)(client, unquote(Spacerace.create_args(endpoint)) = params \\ [], query_params \\ %{}) do
-        Spacerace.Request.get(client, Spacerace.prepare_uri(params, unquote(endpoint)), query_params)
+      def unquote(fun)(client, unquote(Spacerace.create_args(endpoint)) = args \\ [], params \\ %{}) do
+        endpoint = Spacerace.prepare_uri(args, unquote(endpoint))
+        defaults = Keyword.get(unquote(opts), :defaults, %{})
+        params   = Map.merge(defaults, params)
+        Spacerace.Request.post(client, endpoint, params)
       end
     end
   end
 
-  defmacro post(fun, endpoint) do
+  defmacro post(fun, endpoint, opts \\ []) do
     quote do
-      def unquote(fun)(client, unquote(Spacerace.create_args(endpoint)) = params \\ [], body \\ %{}) do
-        client
-        |> Spacerace.Request.post(Spacerace.prepare_uri(params, unquote(endpoint)), body)
-        |> Map.get("results")
-        |> Enum.map(&new/1)
+      def unquote(fun)(client, unquote(Spacerace.create_args(endpoint)) = args \\ [], params \\ %{}) do
+        endpoint = Spacerace.prepare_uri(args, unquote(endpoint))
+        defaults = Keyword.get(unquote(opts), :defaults, %{})
+        params   = Map.merge(defaults, params)
+        Spacerace.Request.post(client, endpoint, params)
       end
     end
   end

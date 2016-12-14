@@ -1,7 +1,6 @@
 defmodule Spacerace.Client do
   defstruct [
     base_url: nil,
-    authorization: nil,
     headers: [],
     options: []
   ]
