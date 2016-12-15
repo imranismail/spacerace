@@ -8,6 +8,8 @@ defmodule Spacerace.Mixfile do
      elixirc_paths: elixirc_paths(Mix.env),
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
+     description: description(),
+     package: package(),
      deps: deps()]
   end
 
@@ -23,6 +25,20 @@ defmodule Spacerace.Mixfile do
      mod: {Spacerace.Application, []}]
   end
 
+  defp description do
+    """
+    The flexible REST API client
+    """
+  end
+
+  defp package do
+    [name: :spacerace,
+     files: ["lib", "mix.exs", "README*", "LICENSE*"],
+     maintainers: ["Imran Ismail"],
+     licenses: ["MIT"],
+     links: %{"GitHub" => "https://github.com/127labs/spacerace"}]
+  end
+
   # Dependencies can be Hex packages:
   #
   #   {:mydep, "~> 0.3.0"}
@@ -36,6 +52,7 @@ defmodule Spacerace.Mixfile do
     [{:httpoison, "~> 0.10.0", optional: true},
      {:poison, "~> 2.0", optional: true},
      {:ecto, "~> 2.1.0-rc.5", optional: true},
-     {:plug, "~> 1.3", optional: true}]
+     {:plug, "~> 1.3", optional: true},
+     {:ex_doc, ">= 0.0.0", only: :dev}]
   end
 end
