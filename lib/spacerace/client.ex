@@ -8,4 +8,6 @@ defmodule Spacerace.Client do
   @type t :: %__MODULE__{}
 
   @callback new(any) :: __MODULE__.t
+  @callback headers(any) :: keyword
+  @callback options(any) :: keyword
 end

@@ -4,26 +4,22 @@ defmodule Spacerace do
       use Ecto.Schema
 
       import Ecto.Changeset
-      import Spacerace, only: [get: 3, post: 3]
+      import Spacerace
 
-      @resources opts[:resources]
-      @resource opts[:resource]
-      @look_in opts[:look_in]
+      @action_headers []
+      @actions []
+
       @before_compile Spacerace
-
-      def __schema__(:resources), do: @resources
-      def __schema__(:resource), do: @resource
-      def __schema__(:look_in), do: @look_in
     end
   end
 
   defmacro __before_compile__(_) do
-    quote do
+    quote bind_quoted: binding() do
       @embedded_fields Keyword.keys(@ecto_embeds)
+      @action_headers Enum.uniq_by(@actions, fn {verb, _, _, _} -> verb end)
+      @fields Keyword.drop(@ecto_fields, @embedded_fields) |> Keyword.keys()
 
-      @fields @ecto_fields
-        |> Keyword.drop(@embedded_fields)
-        |> Keyword.keys()
+      def __spacerace__(:actions), do: @actions
 
       def new(response) do
         %__MODULE__{}
@@ -38,47 +34,35 @@ defmodule Spacerace do
         end)
       end
 
+      for {ver, fun, endpoint, opts} <- @action_headers do
+        def unquote(fun)(client, args \\ [], params \\ %{})
+      end
+
+      for {verb, fun, endpoint, opts} <- @actions do
+        default = Keyword.get(opts, :default, %{})
+
+        if !is_map(default), do: raise ArgumentError, message: "Wrong option passed to default, expected a Map"
+
+        def unquote(fun)(client, unquote(Spacerace.Helper.create_args(endpoint)) = args, params) do
+          endpoint = Spacerace.Helper.prepare_uri(args, unquote(endpoint))
+          params   = Map.merge(unquote(Macro.escape(default)), params)
+          apply(Spacerace.Request, unquote(verb), [client, endpoint, params])
+        end
+      end
+
       defoverridable [new: 1, changeset: 2]
     end
   end
 
   defmacro get(fun, endpoint, opts \\ []) do
-    quote do
-      def unquote(fun)(client, unquote(Spacerace.create_args(endpoint)) = args \\ [], params \\ %{}) do
-        endpoint = Spacerace.prepare_uri(args, unquote(endpoint))
-        defaults = Keyword.get(unquote(opts), :defaults, %{})
-        params   = Map.merge(defaults, params)
-        Spacerace.Request.post(client, endpoint, params)
-      end
+    quote bind_quoted: binding() do
+      @actions [{:get, fun, endpoint, opts} | @actions]
     end
   end
 
   defmacro post(fun, endpoint, opts \\ []) do
-    quote do
-      def unquote(fun)(client, unquote(Spacerace.create_args(endpoint)) = args \\ [], params \\ %{}) do
-        endpoint = Spacerace.prepare_uri(args, unquote(endpoint))
-        defaults = Keyword.get(unquote(opts), :defaults, %{})
-        params   = Map.merge(defaults, params)
-        Spacerace.Request.post(client, endpoint, params)
-      end
+    quote bind_quoted: binding() do
+      @actions [{:post, fun, endpoint, opts} | @actions]
     end
-  end
-
-  def create_args(endpoint) do
-    ~r/:(\w+)/
-    |> Regex.scan(endpoint, capture: :all_but_first)
-    |> Enum.concat()
-    |> Enum.map(&String.to_atom/1)
-    |> Enum.map(fn key ->
-      quote do
-        {unquote(key), unquote(Macro.var(key, __MODULE__))}
-      end
-    end)
-  end
-
-  def prepare_uri(params, endpoint) do
-    Enum.reduce(params, endpoint, fn {param_key, param_val}, endpoint ->
-      String.replace(endpoint, ":#{param_key}", to_string(param_val))
-    end)
   end
 end
