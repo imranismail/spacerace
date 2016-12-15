@@ -1,4 +1,4 @@
-defmodule Mataharimall.Client do
+defmodule Spacerace.Mataharimall.Client do
   use Spacerace.Client
 
   def base_url(client, _opts) do
@@ -40,7 +40,7 @@ defmodule Mataharimall.Client do
   defp parse_json(%{"results" => results}), do: results
 end
 
-defmodule Mataharimall.Brand do
+defmodule Spacerace.Mataharimall.Brand do
   use Spacerace
 
   embedded_schema do
@@ -55,7 +55,7 @@ defmodule Mataharimall.Brand do
   }
 end
 
-defmodule Mataharimall.Category do
+defmodule Spacerace.Mataharimall.Category do
   use Spacerace
 
   embedded_schema do
@@ -75,7 +75,7 @@ defmodule Mataharimall.Category do
   }
 end
 
-defmodule Mataharimall.Color do
+defmodule Spacerace.Mataharimall.Color do
   use Spacerace
 
   embedded_schema do
