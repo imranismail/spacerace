@@ -2,7 +2,8 @@ defmodule Spacerace.Client do
   defstruct [
     base_url: nil,
     headers: [],
-    options: []
+    options: [],
+    parsers: []
   ]
 
   @type t :: %__MODULE__{}
@@ -11,6 +12,7 @@ defmodule Spacerace.Client do
   @callback base_url(keyword) :: String.t
   @callback headers(keyword)  :: keyword
   @callback options(keyword)  :: keyword
+  @callback parsers(keyword)  :: list
 
   defmacro __using__(_) do
     quote bind_quoted: binding() do
@@ -20,7 +22,8 @@ defmodule Spacerace.Client do
         %Spacerace.Client{
           base_url: base_url(opts),
           headers: headers(opts),
-          options: options(opts)
+          options: options(opts),
+          parsers: parsers(opts)
         }
       end
     end

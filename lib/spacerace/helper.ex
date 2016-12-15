@@ -11,6 +11,13 @@ defmodule Spacerace.Helper do
     end)
   end
 
+  def count_args(endpoint) do
+    ~r/:(\w+)/
+    |> Regex.scan(endpoint, capture: :all_but_first)
+    |> Enum.concat()
+    |> Enum.count()
+  end
+
   def prepare_uri(params, endpoint) do
     Enum.reduce(params, endpoint, fn {param_key, param_val}, endpoint ->
       String.replace(endpoint, ":#{param_key}", to_string(param_val))

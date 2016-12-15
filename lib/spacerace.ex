@@ -35,16 +35,11 @@ defmodule Spacerace do
       end
 
       for {verb, action, endpoint, opts} <- @action_headers do
-        bang_action = :"#{action}!"
-
-        def unquote(action)(client, args \\ [], params \\ %{})
-        def unquote(bang_action)(client, args \\ [], params \\ %{})
+        def unquote(action)(client, params \\ %{}, args \\ [])
       end
 
       for {verb, action, endpoint, opts} <- @actions do
         default     = Keyword.get(opts, :default, %{})
-        bang_action = :"#{action}!"
-        bang_verb   = :"#{verb}!"
 
         if !is_map(default), do: raise ArgumentError, message: """
         Wrong option passed to default, expected a Map like so:
@@ -52,16 +47,10 @@ defmodule Spacerace do
                 #{verb} :#{action}, #{endpoint}, default: %{...}
         """
 
-        def unquote(action)(client, unquote(Spacerace.Helper.create_args(endpoint)) = args, params) do
+        def unquote(action)(client, params, unquote(Spacerace.Helper.create_args(endpoint)) = args) do
           endpoint = Spacerace.Helper.prepare_uri(args, unquote(endpoint))
           params   = Map.merge(unquote(Macro.escape(default)), params)
           apply(Spacerace.Request, unquote(verb), [client, endpoint, params])
-        end
-
-        def unquote(bang_action)(client, unquote(Spacerace.Helper.create_args(endpoint)) = args, params) do
-          endpoint = Spacerace.Helper.prepare_uri(args, unquote(endpoint))
-          params   = Map.merge(unquote(Macro.escape(default)), params)
-          apply(Spacerace.Request, unquote(bang_verb), [client, endpoint, params])
         end
       end
 
@@ -72,12 +61,14 @@ defmodule Spacerace do
   defmacro get(action, endpoint, opts \\ []) do
     quote bind_quoted: binding() do
       @actions [{:get, action, endpoint, opts} | @actions]
+      @actions [{:get!, :"#{action}!", endpoint, opts} | @actions]
     end
   end
 
   defmacro post(action, endpoint, opts \\ []) do
     quote bind_quoted: binding() do
       @actions [{:post, action, endpoint, opts} | @actions]
+      @actions [{:post!, :"#{action}!", endpoint, opts} | @actions]
     end
   end
 end
