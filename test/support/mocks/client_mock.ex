@@ -1,13 +1,8 @@
 defmodule Spacerace.ClientMock do
-  @behaviour Spacerace.Client
+  use Spacerace.Client
 
-  def new(opts \\ [base_url: "http://api.sb.mataharimall.com"]) do
-    opts =
-      opts
-      |> Keyword.put(:headers, headers(opts))
-      |> Keyword.put(:options, options(opts))
-
-    struct(Spacerace.Client, opts)
+  def base_url(_opts) do
+    "http://api.sb.mataharimall.com"
   end
 
   def headers(_opts) do
