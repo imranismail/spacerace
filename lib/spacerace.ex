@@ -50,7 +50,8 @@ defmodule Spacerace do
         def unquote(action)(client, params) do
           endpoint = Spacerace.URI.prepare(unquote(endpoint), params)
           params   = Map.merge(unquote(Macro.escape(default)), params)
-          apply(Spacerace.Request, unquote(verb), [client, endpoint, params])
+          response = apply(Spacerace.Request, unquote(verb), [client, endpoint, params])
+          if is_list(response), do: Enum.map(response, &new/1), else: new(response)
         end
       end
 
