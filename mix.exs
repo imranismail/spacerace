@@ -33,9 +33,9 @@ defmodule Spacerace.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   defp deps do
-    [{:httpoison, "~> 0.10.0"},
-     {:poison, "~> 2.0"},
-     {:ecto, "~> 2.1.0-rc.5"},
-     {:plug, "~> 1.3"}]
+    [{:httpoison, "~> 0.10.0", optional: true},
+     {:poison, "~> 2.0", optional: true},
+     {:ecto, "~> 2.1.0-rc.5", optional: true},
+     {:plug, "~> 1.3", optional: true}]
   end
 end
