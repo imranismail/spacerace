@@ -35,7 +35,7 @@ defmodule Spacerace do
       end
 
       for {verb, action, endpoint, opts} <- @action_headers do
-        def unquote(action)(client, params \\ %{}, args \\ [])
+        def unquote(action)(client, params \\ %{})
       end
 
       for {verb, action, endpoint, opts} <- @actions do
@@ -47,8 +47,8 @@ defmodule Spacerace do
                 #{verb} :#{action}, #{endpoint}, default: %{...}
         """
 
-        def unquote(action)(client, params, unquote(Spacerace.Helper.create_args(endpoint)) = args) do
-          endpoint = Spacerace.Helper.prepare_uri(args, unquote(endpoint))
+        def unquote(action)(client, params) do
+          endpoint = Spacerace.URI.prepare(unquote(endpoint), params)
           params   = Map.merge(unquote(Macro.escape(default)), params)
           apply(Spacerace.Request, unquote(verb), [client, endpoint, params])
         end

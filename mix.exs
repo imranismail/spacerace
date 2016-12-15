@@ -35,6 +35,7 @@ defmodule Spacerace.Mixfile do
   defp deps do
     [{:httpoison, "~> 0.10.0"},
      {:poison, "~> 2.0"},
-     {:ecto, "~> 2.1.0-rc.5"}]
+     {:ecto, "~> 2.1.0-rc.5"},
+     {:plug, "~> 1.3"}]
   end
 end

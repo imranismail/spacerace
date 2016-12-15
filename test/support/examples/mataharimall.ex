@@ -24,9 +24,19 @@ defmodule Mataharimall.Client do
     ])
   end
 
-  defp parse_httpoison({:ok, %{body: body}}), do: Poison.decode(body)
-  defp parse_httpoison(%{body: body}), do: Poison.decode!(body)
-  defp parse_json({:ok, %{"results" => results}}), do: {:ok, results}
+  defp parse_httpoison({:ok, resp}), do: parse_httpoison(resp)
+  defp parse_httpoison(%{body: body, status_code: code}) when code in 200..299 do
+    Poison.decode!(body)
+  end
+  defp parse_httpoison(%{body: body, status_code: code}) do
+    raise Exception, message: """
+        Request failed with error of: #{code}
+
+            #{inspect(body)}
+    """
+  end
+
+  defp parse_json({:ok, json}), do: {:ok, parse_json(json)}
   defp parse_json(%{"results" => results}), do: results
 end
 
@@ -38,13 +48,6 @@ defmodule Mataharimall.Brand do
   end
 
   post :all, "/master/brands", default: %{
-    page: "1",
-    limit: "30",
-    orderby: "asc",
-    sortby: "brand"
-  }
-
-  post :all, "/master/brands/:brand_id", default: %{
     page: "1",
     limit: "30",
     orderby: "asc",
