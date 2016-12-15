@@ -46,7 +46,11 @@ defmodule Spacerace do
         bang_action = :"#{action}!"
         bang_verb   = :"#{verb}!"
 
-        if !is_map(default), do: raise ArgumentError, message: "Wrong option passed to default, expected a Map"
+        if !is_map(default), do: raise ArgumentError, message: """
+        Wrong option passed to default, expected a Map like so:
+
+                #{verb} :#{action}, #{endpoint}, default: %{...}
+        """
 
         def unquote(action)(client, unquote(Spacerace.Helper.create_args(endpoint)) = args, params) do
           endpoint = Spacerace.Helper.prepare_uri(args, unquote(endpoint))
