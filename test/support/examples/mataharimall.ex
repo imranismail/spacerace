@@ -1,24 +1,27 @@
 defmodule Mataharimall.Client do
   use Spacerace.Client
 
-  def base_url(_opts) do
-    "http://api.sb.mataharimall.com"
+  def base_url(client, _opts) do
+    Map.put(client, :base_url, "http://api.sb.mataharimall.com")
+
   end
 
-  def headers(_opts) do
-    [{"Authorization", "Seller #{Application.get_env(:spacerace, :token)}"},
-     {"Content-Type", "application/vnd.api+json"}]
+  def headers(client, _opts) do
+    Map.put(client, :headers, [
+      {"Authorization", "Seller #{Application.get_env(:spacerace, :token)}"},
+      {"Content-Type", "application/vnd.api+json"}
+    ])
   end
 
-  def options(_opts) do
-    []
+  def options(client, _opts) do
+    Map.put(client, :options, [])
   end
 
-  def parsers(_opts) do
-    [
+  def parsers(client, _opts) do
+    Map.put(client, :parsers, [
       &parse_httpoison/1,
       &parse_json/1
-    ]
+    ])
   end
 
   defp parse_httpoison({:ok, %{body: body}}), do: Poison.decode(body)
