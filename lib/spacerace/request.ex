@@ -2,29 +2,29 @@ defmodule Spacerace.Request do
   def get(client, endpoint, params \\ %{}) do
     HTTPoison
     |> apply(:get, prepare_args_for(:get, client, endpoint, params))
-    |> parse_response(client.parsers)
+    |> parse_response(client)
   end
 
   def get!(client, endpoint, params \\ %{}) do
     HTTPoison
     |> apply(:get!, prepare_args_for(:get, client, endpoint, params))
-    |> parse_response(client.parsers)
+    |> parse_response(client)
   end
 
   def post(client, endpoint, params \\ %{}) do
     HTTPoison
     |> apply(:post, prepare_args_for(:post, client, endpoint, params))
-    |> parse_response(client.parsers)
+    |> parse_response(client)
   end
 
   def post!(client, endpoint, params \\ %{}) do
     HTTPoison
     |> apply(:post!, prepare_args_for(:post, client, endpoint, params))
-    |> parse_response(client.parsers)
+    |> parse_response(client)
   end
 
-  defp parse_response(response, parsers) do
-    Enum.reduce(parsers, response, &(&1.(&2)))
+  defp parse_response(response, client) do
+    Enum.reduce(client.parsers, response, &(&1.(&2, client)))
   end
 
   defp prepare_args_for(:get, client, endpoint, params) do

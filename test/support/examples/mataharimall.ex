@@ -1,4 +1,4 @@
-defmodule Spacerace.Mataharimall.Client do
+defmodule Spacerace.MMClient do
   use Spacerace.Client
 
   def base_url(client, _opts) do
@@ -17,44 +17,42 @@ defmodule Spacerace.Mataharimall.Client do
   end
 
   def parsers(client, _opts) do
-    Map.put(client, :parsers, [
-      &parse_httpoison/1,
-      &parse_json/1
-    ])
+    Map.put(client, :parsers, [&parse/2])
   end
 
-  defp parse_httpoison({:ok, resp}), do: parse_httpoison(resp)
-  defp parse_httpoison(%{body: body, status_code: code}) when code in 200..299 do
+  defp parse({:ok, resp}, client) do
+    if resp.status_code in 200..299 do
+      {:ok, success(resp, client)}
+    else
+      {:error, fail(resp, client)}
+    end
+  end
+
+  defp parse(resp, client) do
+    if resp.status_code in 200..299 do
+      success(resp, client)
+    else
+      fail(resp, client)
+    end
+  end
+
+  defp success(%{body: body}, client) do
+    results =
+      body
+      |> Poison.decode!()
+      |> Map.get("results")
+
+    if is_list(results),
+      do: Enum.map(results, &client.from.new/1),
+      else: client.from.new(results)
+  end
+
+  defp fail(%{body: body}, _) do
     Poison.decode!(body)
   end
-  defp parse_httpoison(%{body: body, status_code: code}) do
-    raise RuntimeError, message: """
-        Request failed with error of: #{code}
-
-            #{inspect(body)}
-    """
-  end
-
-  defp parse_json({:ok, json}), do: {:ok, parse_json(json)}
-  defp parse_json(%{"results" => results}), do: results
 end
 
-defmodule Spacerace.Mataharimall.Brand do
-  use Spacerace
-
-  embedded_schema do
-    field :brand
-  end
-
-  post :all, "/master/brands", default: %{
-    page: "1",
-    limit: "30",
-    orderby: "asc",
-    sortby: "brand"
-  }
-end
-
-defmodule Spacerace.Mataharimall.Category do
+defmodule Spacerace.MMCategory do
   use Spacerace
 
   embedded_schema do
@@ -71,20 +69,5 @@ defmodule Spacerace.Mataharimall.Category do
     orderby: "asc",
     sortby: "category",
     parent_category_id: "NULL"
-  }
-end
-
-defmodule Spacerace.Mataharimall.Color do
-  use Spacerace
-
-  embedded_schema do
-    field :color
-  end
-
-  post :all, "/master/colors", default: %{
-    page: "1",
-    limit: "30",
-    orderby: "asc",
-    sortby: "color"
   }
 end

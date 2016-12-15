@@ -3,7 +3,8 @@ defmodule Spacerace.Client do
     base_url: nil,
     headers: [],
     options: [],
-    parsers: []
+    parsers: [],
+    from: nil
   ]
 
   @type t :: %__MODULE__{}
