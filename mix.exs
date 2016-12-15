@@ -21,7 +21,7 @@ defmodule Spacerace.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    [applications: [:logger, :poison, :httpoison, :ecto],
+    [applications: [:logger, :poison, :httpoison, :ecto, :plug],
      mod: {Spacerace.Application, []}]
   end
 
@@ -49,8 +49,8 @@ defmodule Spacerace.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   defp deps do
-    [{:httpoison, "~> 0.10.0", optional: true},
-     {:poison, "~> 2.0", optional: true},
+    [{:httpoison, "~> 0.10.0"},
+     {:poison, "~> 2.0"},
      {:ecto, "~> 2.1.0-rc.5", optional: true},
      {:plug, "~> 1.3", optional: true},
      {:ex_doc, ">= 0.0.0", only: :dev}]
