@@ -3,7 +3,6 @@ defmodule Spacerace.Mataharimall.Client do
 
   def base_url(client, _opts) do
     Map.put(client, :base_url, "http://api.sb.mataharimall.com")
-
   end
 
   def headers(client, _opts) do
