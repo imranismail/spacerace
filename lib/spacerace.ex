@@ -16,7 +16,7 @@ defmodule Spacerace do
   defmacro __before_compile__(_) do
     quote bind_quoted: binding() do
       @embedded_fields Keyword.keys(@ecto_embeds)
-      @action_headers Enum.uniq_by(@actions, fn {verb, _, _, _} -> verb end)
+      @action_headers Enum.uniq_by(@actions, fn {_, action, _, _} -> action end)
       @fields Keyword.drop(@ecto_fields, @embedded_fields) |> Keyword.keys()
 
       def __spacerace__(:actions), do: @actions
@@ -34,16 +34,16 @@ defmodule Spacerace do
         end)
       end
 
-      for {ver, fun, endpoint, opts} <- @action_headers do
-        def unquote(fun)(client, args \\ [], params \\ %{})
+      for {ver, action, endpoint, opts} <- @action_headers do
+        def unquote(action)(client, args \\ [], params \\ %{})
       end
 
-      for {verb, fun, endpoint, opts} <- @actions do
+      for {verb, action, endpoint, opts} <- @actions do
         default = Keyword.get(opts, :default, %{})
 
         if !is_map(default), do: raise ArgumentError, message: "Wrong option passed to default, expected a Map"
 
-        def unquote(fun)(client, unquote(Spacerace.Helper.create_args(endpoint)) = args, params) do
+        def unquote(action)(client, unquote(Spacerace.Helper.create_args(endpoint)) = args, params) do
           endpoint = Spacerace.Helper.prepare_uri(args, unquote(endpoint))
           params   = Map.merge(unquote(Macro.escape(default)), params)
           apply(Spacerace.Request, unquote(verb), [client, endpoint, params])
@@ -54,15 +54,15 @@ defmodule Spacerace do
     end
   end
 
-  defmacro get(fun, endpoint, opts \\ []) do
+  defmacro get(action, endpoint, opts \\ []) do
     quote bind_quoted: binding() do
-      @actions [{:get, fun, endpoint, opts} | @actions]
+      @actions [{:get, action, endpoint, opts} | @actions]
     end
   end
 
-  defmacro post(fun, endpoint, opts \\ []) do
+  defmacro post(action, endpoint, opts \\ []) do
     quote bind_quoted: binding() do
-      @actions [{:post, fun, endpoint, opts} | @actions]
+      @actions [{:post, action, endpoint, opts} | @actions]
     end
   end
 end
