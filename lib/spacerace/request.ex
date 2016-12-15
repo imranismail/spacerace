@@ -1,21 +1,36 @@
 defmodule Spacerace.Request do
-  def get(client, endpoint, query_params \\ %{}) do
+  def get(client, endpoint, params \\ %{}) do
+    apply(HTTPoison, :get, prepare_args_for(:get, client, endpoint, params))
+  end
+
+  def get!(client, endpoint, params \\ %{}) do
+    apply(HTTPoison, :get!, prepare_args_for(:get, client, endpoint, params))
+  end
+
+  def post(client, endpoint, params \\ %{}) do
+    apply(HTTPoison, :post!, prepare_args_for(:post, client, endpoint, params))
+  end
+
+  def post!(client, endpoint, params \\ %{}) do
+    apply(HTTPoison, :post!, prepare_args_for(:post, client, endpoint, params))
+  end
+
+  defp prepare_args_for(:get, client, endpoint, params) do
     endpoint =
-      if Enum.empty?(query_params) do
+      if Enum.empty?(params) do
         URI.merge(client.base_url, endpoint)
       else
         client.base_url
         |> URI.merge(endpoint)
-        |> URI.merge("?#{URI.encode_query(query_params)}")
+        |> URI.merge("?#{URI.encode_query(params)}")
       end
 
-    HTTPoison.get(endpoint, client.headers, client.options)
+    [endpoint, client.headers, client.options]
   end
 
-  def post(client, endpoint, body \\ %{}) do
+  defp prepare_args_for(:post, client, endpoint, params) do
     endpoint = URI.merge(client.base_url, endpoint)
-    body     = Poison.encode!(body)
-
-    HTTPoison.post(endpoint, body, client.headers, client.options)
+    params   = Poison.encode!(params)
+    [endpoint, params, client.headers, client.options]
   end
 end
