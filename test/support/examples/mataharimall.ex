@@ -28,7 +28,7 @@ defmodule Spacerace.Mataharimall.Client do
     Poison.decode!(body)
   end
   defp parse_httpoison(%{body: body, status_code: code}) do
-    raise Exception, message: """
+    raise RuntimeError, message: """
         Request failed with error of: #{code}
 
             #{inspect(body)}
