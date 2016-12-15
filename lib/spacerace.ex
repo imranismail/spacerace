@@ -16,7 +16,7 @@ defmodule Spacerace do
   defmacro __before_compile__(_) do
     quote bind_quoted: binding() do
       @embedded_fields Keyword.keys(@ecto_embeds)
-      @action_headers Enum.uniq_by(@actions, fn {_, action, _, _} -> action end)
+      @action_headers Enum.uniq_by(@actions, fn {verb, action, endpoint, opts} -> action end)
       @fields Keyword.drop(@ecto_fields, @embedded_fields) |> Keyword.keys()
 
       def __spacerace__(:actions), do: @actions
@@ -34,7 +34,7 @@ defmodule Spacerace do
         end)
       end
 
-      for {ver, action, endpoint, opts} <- @action_headers do
+      for {verb, action, endpoint, opts} <- @action_headers do
         def unquote(action)(client, args \\ [], params \\ %{})
       end
 
