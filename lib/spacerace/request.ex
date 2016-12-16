@@ -42,7 +42,7 @@ defmodule Spacerace.Request do
 
   defp prepare_args_for(:post, client, endpoint, params) do
     endpoint = URI.merge(client.base_url, endpoint)
-    params   = Poison.encode!(params)
+    params   = params |> Enum.into(%{}) |> Poison.encode!()
     [endpoint, params, client.headers, client.options]
   end
 end

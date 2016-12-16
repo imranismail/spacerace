@@ -39,17 +39,15 @@ defmodule Spacerace do
       end
 
       for {verb, action, endpoint, opts} <- @actions do
-        default     = Keyword.get(opts, :default, %{})
-
-        if !is_map(default), do: raise ArgumentError, message: """
-        Wrong option passed to default, expected a Map like so:
-
-                #{verb} :#{action}, #{endpoint}, default: %{...}
-        """
+        default =
+          opts
+          |> Keyword.get(:default, %{})
+          |> Enum.reduce(%{}, fn ({key, val}, acc) -> Map.put(acc, Atom.to_string(key), val) end)
+          |> Macro.escape(unquote: true)
 
         def unquote(action)(client, params) do
           endpoint = Spacerace.URI.prepare(unquote(endpoint), params)
-          params   = Map.merge(unquote(Macro.escape(default)), params)
+          params   = Map.merge(unquote(default), params)
           client   = Map.put(client, :from, __MODULE__)
           apply(Spacerace.Request, unquote(verb), [client, endpoint, params])
         end
