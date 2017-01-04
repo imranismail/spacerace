@@ -1,31 +1,37 @@
 defmodule Spacerace.Client do
-  defstruct [
-    base_url: nil,
-    headers: [],
-    options: [],
-    parsers: [],
-    from: nil
-  ]
+  def put_base_url(client, url) do
+    Map.put(client, :base_url, url)
+  end
 
-  @type t :: %__MODULE__{}
+  def put_resource_module(client, module) do
+    Map.put(client, :resource, module)
+  end
 
-  @callback new(__MODULE__.t, keyword)      :: __MODULE__.t
-  @callback base_url(__MODULE__.t, keyword) :: __MODULE__.t
-  @callback headers(__MODULE__.t, keyword)  :: __MODULE__.t
-  @callback options(__MODULE__.t, keyword)  :: __MODULE__.t
-  @callback parsers(__MODULE__.t, keyword)  :: __MODULE__.t
+  def add_header(client, key, value) do
+    Map.update!(client, :headers, fn headers -> [{key, value}|headers] end)
+  end
+
+  def add_option(client, option) do
+    Map.update!(client, :options, fn options -> [option|options] end)
+  end
+
+  def add_parser(client, parser) do
+    Map.update!(client, :parsers, fn parsers -> parsers ++ [parser] end)
+  end
 
   defmacro __using__(_) do
     quote bind_quoted: binding() do
-      @behaviour Spacerace.Client
+      import Spacerace.Client
 
-      def new(client \\ %Spacerace.Client{}, opts \\ []) do
-        client
-        |> base_url(opts)
-        |> headers(opts)
-        |> options(opts)
-        |> parsers(opts)
-      end
+      defstruct [
+        base_url: nil,
+        headers: [],
+        options: [],
+        parsers: [],
+        resource: nil
+      ]
+
+      @type t :: %__MODULE__{}
     end
   end
 end

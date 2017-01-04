@@ -1,54 +1,47 @@
-defmodule Spacerace.MMClient do
-  use Spacerace.Client
+defmodule Spacerace.MMParser do
+  use Spacerace.Parser
 
-  def base_url(client, _opts) do
-    Map.put(client, :base_url, "http://api.sb.mataharimall.com")
-  end
-
-  def headers(client, _opts) do
-    Map.put(client, :headers, [
-      {"Authorization", "Seller #{Application.get_env(:spacerace, :token)}"},
-      {"Content-Type", "application/vnd.api+json"}
-    ])
-  end
-
-  def options(client, _opts) do
-    Map.put(client, :options, [])
-  end
-
-  def parsers(client, _opts) do
-    Map.put(client, :parsers, [&parse/2])
-  end
-
-  defp parse({:ok, resp}, client) do
+  def parse(resource, {:ok, resp}) do
     if resp.status_code in 200..299 do
-      {:ok, success(resp, client)}
+      {:ok, success(resource, resp)}
     else
-      {:error, fail(resp, client)}
+      {:error, fail(resource, resp)}
     end
   end
 
-  defp parse(resp, client) do
+  def parse(resource, resp) do
     if resp.status_code in 200..299 do
-      success(resp, client)
+      success(resource, resp)
     else
-      fail(resp, client)
+      fail(resource, resp)
     end
   end
 
-  defp success(%{body: body}, client) do
+  defp success(resource, %{body: body}) do
     results =
       body
       |> Poison.decode!()
       |> Map.get("results")
 
     if is_list(results),
-      do: Enum.map(results, &client.from.new/1),
-      else: client.from.new(results)
+      do: Enum.map(results, &resource.new/1),
+      else: resource.new(results)
   end
 
-  defp fail(%{body: body}, _) do
+  defp fail(_resource, %{body: body}) do
     Poison.decode!(body)
+  end
+end
+
+defmodule Spacerace.MMClient do
+  use Spacerace.Client
+
+  def new(opts \\ []) do
+    struct(__MODULE__, opts)
+    |> put_base_url("http://apiseller.mataharimall.net/")
+    |> add_header("Authorization", "Seller yourapitoken")
+    |> add_header("Content-Type", "application/vnd.api+json")
+    |> add_parser(Spacerace.MMParser)
   end
 end
 
