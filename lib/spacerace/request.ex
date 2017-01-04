@@ -36,7 +36,7 @@ defmodule Spacerace.Request do
     endpoint =
       client.base_url
       |> URI.parse()
-      |> Map.update(:path, &Path.join(&1, endpoint))
+      |> Map.update!(:path, &Path.join(&1, endpoint))
       |> Map.put(:query, URI.encode_query(params))
 
     [endpoint, client.headers, client.options]
