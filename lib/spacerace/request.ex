@@ -34,13 +34,10 @@ defmodule Spacerace.Request do
 
   defp prepare_args_for(:get, client, endpoint, params) do
     endpoint =
-      if Enum.empty?(params) do
-        URI.merge(client.base_url, endpoint)
-      else
-        client.base_url
-        |> URI.merge(endpoint)
-        |> URI.merge("?#{URI.encode_query(params)}")
-      end
+      client.base_url
+      |> URI.parse()
+      |> Map.update(:path, &Path.join(&1, endpoint))
+      |> Map.put(:query, URI.encode_query(params))
 
     [endpoint, client.headers, client.options]
   end
