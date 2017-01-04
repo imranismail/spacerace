@@ -48,7 +48,7 @@ defmodule Spacerace do
         def unquote(action)(client, params) do
           endpoint = Spacerace.URI.prepare(unquote(endpoint), params)
           params   = Map.merge(unquote(default), params)
-          client   = Map.put(client, :from, __MODULE__)
+          client   = Spacerace.Client.put_resource_module(client, __MODULE__)
           apply(Spacerace.Request, unquote(verb), [client, endpoint, params])
         end
       end
