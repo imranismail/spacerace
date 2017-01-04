@@ -51,7 +51,7 @@ defmodule Spacerace.Mixfile do
   defp deps do
     [{:httpoison, "~> 0.10.0"},
      {:poison, "~> 2.0"},
-     {:ecto, "~> 2.1-rc", optional: true},
+     {:ecto, "~> 2.1", optional: true},
      {:plug, "~> 1.3", optional: true},
      {:ex_doc, ">= 0.0.0", only: :dev}]
   end
