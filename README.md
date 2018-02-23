@@ -1,23 +1,6 @@
 # Spacerace
 
-**TODO: Add description**
+**No longer maintained**
 
-## Installation
+I recommend [maxwell](https://github.com/zhongwencool/maxwell)
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed as:
-
-  1. Add `spacerace` to your list of dependencies in `mix.exs`:
-
-    ```elixir
-    def deps do
-      [{:spacerace, "~> 0.1.0"}]
-    end
-    ```
-
-  2. Ensure `spacerace` is started before your application:
-
-    ```elixir
-    def application do
-      [applications: [:spacerace]]
-    end
-    ```
